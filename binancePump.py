@@ -192,6 +192,7 @@ def process_message(tickers):
             price_changes.append(PriceChange(symbol, price, price, total_trades, open, volume, False, event_time, volume))
 
     price_changes.sort(key=operator.attrgetter('price_change_perc'), reverse=True)
+    #print(len(price_changes))
     
     for price_change in price_changes:
         console_color = 'green'
