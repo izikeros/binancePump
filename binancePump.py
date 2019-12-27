@@ -88,7 +88,8 @@ def process_message(tickers):
             if not price_change.symbol in price_groups:
                 price_groups[price_change.symbol] = PriceGroup(price_change.symbol,                                                                
                                                                1,                                                                
-                                                               abs(price_change.price_change_perc), 
+                                                               abs(price_change.price_change_perc),
+                                                               price_change.price_change_perc,
                                                                price_change.volume_change_perc,                                                                
                                                                price_change.price,                                                                                                                             
                                                                price_change.event_time,
@@ -103,6 +104,7 @@ def process_message(tickers):
                 price_groups[price_change.symbol].last_price = price_change.price
                 price_groups[price_change.symbol].isPrinted = False
                 price_groups[price_change.symbol].total_price_change += abs(price_change.price_change_perc)
+                price_groups[price_change.symbol].relative_price_change += price_change.price_change_perc
                 price_groups[price_change.symbol].total_volume_change += price_change.volume_change_perc                
 
     if len(price_groups)>0:
@@ -118,8 +120,8 @@ def process_message(tickers):
                     if not max_price_group.isPrinted:
                         if not header_printed:
                             print ("Top Ticks")
-                            header_printed = True
-                        print(max_price_group.to_string())
+                            header_printed = True                        
+                        print(max_price_group.to_string(True))
                         anyPrinted = True
 
         sorted_price_group = sorted(price_groups, key=lambda k:price_groups[k]['total_price_change'])
@@ -134,7 +136,22 @@ def process_message(tickers):
                         if not header_printed:
                             print ("Top Total Price Change")
                             header_printed = True
-                        print(max_price_group.to_string())
+                        print(max_price_group.to_string(True))
+                        anyPrinted = True
+
+        sorted_price_group = sorted(price_groups, key=lambda k:abs(price_groups[k]['relative_price_change']))
+        if (len(sorted_price_group)>0):
+            sorted_price_group = list(reversed(sorted_price_group))
+            for s in range(show_limit):
+                header_printed=False
+                if (s<len(sorted_price_group)):
+                    max_price_group = sorted_price_group[s]
+                    max_price_group = price_groups[max_price_group]
+                    if not max_price_group.isPrinted:
+                        if not header_printed:
+                            print ("Top Relative Price Change")
+                            header_printed = True
+                        print(max_price_group.to_string(True))
                         anyPrinted = True
 
         sorted_price_group = sorted(price_groups, key=lambda k:price_groups[k]['total_volume_change'])
@@ -149,7 +166,7 @@ def process_message(tickers):
                         if not header_printed:
                             print ("Top Total Volume Change")
                             header_printed = True
-                        print(max_price_group.to_string())
+                        print(max_price_group.to_string(True))
                         anyPrinted = True
 
         #max_price_group = max(price_groups, key=lambda k:price_groups[k]['tick_count'])
