@@ -1,0 +1,7 @@
+termcolor
+joblib
+tqdm
+numpy
+pandas
+python-binance
+pyTelegramBotAPI
