@@ -1,3 +1,4 @@
+import argparse
 import datetime as dt
 import json
 import operator
@@ -22,15 +23,18 @@ def set_chat_id(c):
     chat_ids.append(c)
 
 
-def main():
+def main(use_telegram_bot=False):
     # READ API CONFIG
     api_config = {}
     with open("api_config.json") as json_data:
         api_config = json.load(json_data)
         json_data.close()
 
-    TOKEN = api_config["telegram_bot_token"]
-    tb = telebot.TeleBot(TOKEN)  # create a new Telegram Bot object
+    if use_telegram_bot:
+        TOKEN = api_config["telegram_bot_token"]
+        tb = telebot.TeleBot(TOKEN)  # create a new Telegram Bot object
+    else:
+        tb = None
 
     def send_message(chat_id, msg):
         try:
@@ -39,8 +43,9 @@ def main():
             pass
 
     def send_to_all_chat_ids(msg):
-        for chat_id in chat_ids:
-            send_message(chat_id, msg)
+        if use_telegram_bot:
+            for chat_id in chat_ids:
+                send_message(chat_id, msg)
 
     @tb.message_handler(commands=["start", "help"])
     def send_welcome(message):
@@ -117,9 +122,9 @@ def main():
                 console_color = "red"
 
             if (
-                    not price_change.isPrinted
-                    and abs(price_change.price_change_perc) > min_perc
-                    and price_change.volume_change_perc > min_perc
+                not price_change.isPrinted
+                and abs(price_change.price_change_perc) > min_perc
+                and price_change.volume_change_perc > min_perc
             ):
 
                 price_change.isPrinted = True
@@ -263,4 +268,12 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="Binance pump or dump detector")
+    parser.add_argument(
+        "--use-telegram-bot",
+        action="store_true",
+        default=False,
+        help="enable telegram bot",
+    )
+    args = parser.parse_args()
+    main(args.use_telegram_bot)
