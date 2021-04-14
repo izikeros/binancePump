@@ -1,32 +1,36 @@
-import pandas as pd
-import numpy as np
+import time
+from datetime import datetime
 
 import dateparser
+import pandas as pd
 import pytz
-import json
 
-import datetime as dt
-from datetime import datetime, timedelta
-import time
 
 def binanceDataFrame(klines):
-    df = pd.DataFrame(klines.reshape(-1,12),dtype=float, columns = ('Open Time',
-                                                                    'Open',
-                                                                    'High',
-                                                                    'Low',
-                                                                    'Close',
-                                                                    'Volume',
-                                                                    'Close Time',
-                                                                    'Quote asset volume',
-                                                                    'Number of trades',
-                                                                    'Taker buy base asset volume',
-                                                                    'Taker buy quote asset volume',
-                                                                    'Ignore'))
+    df = pd.DataFrame(
+        klines.reshape(-1, 12),
+        dtype=float,
+        columns=(
+            "Open Time",
+            "Open",
+            "High",
+            "Low",
+            "Close",
+            "Volume",
+            "Close Time",
+            "Quote asset volume",
+            "Number of trades",
+            "Taker buy base asset volume",
+            "Taker buy quote asset volume",
+            "Ignore",
+        ),
+    )
 
-    df['Open Time'] = pd.to_datetime(df['Open Time'], unit='ms')
-    df['Close Time'] = pd.to_datetime(df['Close Time'], unit='ms')
+    df["Open Time"] = pd.to_datetime(df["Open Time"], unit="ms")
+    df["Close Time"] = pd.to_datetime(df["Close Time"], unit="ms")
 
     return df
+
 
 def date_to_milliseconds(date_str):
     """Convert UTC date to milliseconds
@@ -46,6 +50,7 @@ def date_to_milliseconds(date_str):
     # return the difference in time
     return int((d - epoch).total_seconds() * 1000.0)
 
+
 def interval_to_milliseconds(interval):
     """Convert a Binance interval string to milliseconds
     :param interval: Binance interval string 1m, 3m, 5m, 15m, 30m, 1h, 2h, 4h, 6h, 8h, 12h, 1d, 3d, 1w
@@ -56,12 +61,7 @@ def interval_to_milliseconds(interval):
          int value of interval in milliseconds
     """
     ms = None
-    seconds_per_unit = {
-        "m": 60,
-        "h": 60 * 60,
-        "d": 24 * 60 * 60,
-        "w": 7 * 24 * 60 * 60
-    }
+    seconds_per_unit = {"m": 60, "h": 60 * 60, "d": 24 * 60 * 60, "w": 7 * 24 * 60 * 60}
 
     unit = interval[-1]
     if unit in seconds_per_unit:
@@ -70,6 +70,7 @@ def interval_to_milliseconds(interval):
         except ValueError:
             pass
     return ms
+
 
 def get_historical_klines(symbol, interval, start_str, end_str=None):
     """Get Historical Klines from Binance
@@ -85,7 +86,7 @@ def get_historical_klines(symbol, interval, start_str, end_str=None):
     :type end_str: str
     :return: list of OHLCV values
     """
-    # create the Binance client, no need for api key    
+    # create the Binance client, no need for api key
 
     # init our list
     output_data = []
@@ -114,7 +115,7 @@ def get_historical_klines(symbol, interval, start_str, end_str=None):
             interval=interval,
             limit=limit,
             startTime=start_ts,
-            endTime=end_ts
+            endTime=end_ts,
         )
 
         # handle the case where our start date is before the symbol pair listed on Binance
