@@ -160,18 +160,17 @@ def main(use_telegram_bot=False):
                 price_change.isPrinted = True
 
                 if price_change.symbol not in price_groups:
-                    price_groups[price_change.symbol] = PriceGroup(
-                        symbol=price_change.symbol,
-                        tick_count=1,
-                        total_price_change=abs(price_change.price_change_perc),
-                        relative_price_change=price_change.price_change_perc,
-                        total_volume_change=price_change.volume_change_perc,
-                        last_price=price_change.price,
-                        last_event_time=price_change.event_time,
-                        open=price_change.open,
-                        volume=price_change.volume,
-                        isPrinted=False,
-                    )
+                    price_groups[price_change.symbol] = PriceGroup(symbol=price_change.symbol,
+                                                                   tick_count=1,
+                                                                   total_price_change=abs(
+                                                                       price_change.price_change_perc),
+                                                                   relative_price_change=price_change.price_change_perc,
+                                                                   total_volume_change=price_change.volume_change_perc,
+                                                                   last_price=price_change.price,
+                                                                   last_event_time=price_change.event_time,
+                                                                   open_price=price_change.open,
+                                                                   volume=price_change.volume,
+                                                                   is_printed=False)
                 else:
                     price_groups[price_change.symbol].tick_count += 1
                     price_groups[
