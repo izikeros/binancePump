@@ -1,0 +1,53 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+# Use: `pre-commit autoupdate` to update the hooks
+
+
+repos:
+  # Remove trailing whitespace
+  # Ensure that all files end with a newline
+  # Harmonize line endings
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.1.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+
+  # Import order and formatting
+  #   If used jointly with flake8-import-order, ensure that flake8 import order
+  #   is set to the same style that is enforced by zimports.
+  #   E.g. add `import-order-style = google` to your .flake8 file.
+  - repo: https://github.com/sqlalchemyorg/zimports/
+    rev: v0.5.0
+    hooks:
+      - id: zimports
+        args: [ --style=pycharm ]
+
+  # The uncompromising code formatter
+  - repo: https://github.com/psf/black
+    rev: 22.3.0
+    hooks:
+      - id: black
+
+  # A tool to automatically upgrade syntax for newer versions of the python language.
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v2.31.1
+    hooks:
+      - id: pyupgrade
+        args: [ --py36-plus ]
+
+  # A tool to automatically fix common style issues in Python code. Has plugins.
+  - repo: https://github.com/pycqa/flake8
+    rev: '4.0.1'
+    hooks:
+      - id: flake8
+        exclude: (__pycache__|.venv|tmp|.tox)
+        additional_dependencies: [ flake8-import-order, flake8-keyword-arguments ]
+
+  # Find common security issues in your Python code using bandit.
+  - repo: https://github.com/Lucas-C/pre-commit-hooks-bandit
+    rev: v1.0.5
+    hooks:
+      - id: python-bandit-vulnerability-check
+        args: [ -r, --ini, .bandit ]
