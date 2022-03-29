@@ -34,6 +34,7 @@ class PriceChange:
         #     self.event_time,
         #     self.prev_volume,
         # )
+
     @property
     def volume_change(self):
         return self.volume - self.prev_volume

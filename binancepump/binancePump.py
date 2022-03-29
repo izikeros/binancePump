@@ -6,10 +6,9 @@ from typing import List
 
 import telebot
 from binance import BinanceSocketManager
-from binance.client import AsyncClient, Client
-
-from pricechange import *
-from pricegroup import *
+from binance.client import Client
+from pricechange import PriceChange
+from pricegroup import PriceGroup
 
 
 show_only_pair = "USDT"  # Select nothing for all, only selected currency will be shown
@@ -35,15 +34,15 @@ def add_price_change_to_list(price_changes_list, ticker: dict):
     event_time = dt.datetime.fromtimestamp(int(ticker["E"]) / 1000)
     price_changes_list.append(
         PriceChange(
-            symbol,
-            price,
-            price,
-            total_trades,
-            open_price,
-            volume,
-            False,
-            event_time,
-            volume,
+            symbol=symbol,
+            prev_price=price,
+            price=price,
+            total_trades=total_trades,
+            open=open_price,
+            volume=volume,
+            isPrinted=False,
+            event_time=event_time,
+            prev_volume=volume,
         )
     )
     return price_changes_list
@@ -79,7 +78,9 @@ def main(use_telegram_bot=False):
         set_chat_id(message.chat.id)
         tb.reply_to(
             message,
-            "Welcome to BinancePump Bot, Binance Top Tick Count, Top Price and Volume Change Feeds will be shared with you. One of it could be start of pump or dump, keep an eye on me!",
+            "Welcome to BinancePump Bot, Binance Top Tick Count, Top Price and Volume Change "
+            "Feeds will be shared with you. One of it could be start of pump or dump, keep an eye "
+            "on me!",
         )
 
     def process_message(tickers):
@@ -158,18 +159,18 @@ def main(use_telegram_bot=False):
 
                 price_change.isPrinted = True
 
-                if not price_change.symbol in price_groups:
+                if price_change.symbol not in price_groups:
                     price_groups[price_change.symbol] = PriceGroup(
-                        price_change.symbol,
-                        1,
-                        abs(price_change.price_change_perc),
-                        price_change.price_change_perc,
-                        price_change.volume_change_perc,
-                        price_change.price,
-                        price_change.event_time,
-                        price_change.open,
-                        price_change.volume,
-                        False,
+                        symbol=price_change.symbol,
+                        tick_count=1,
+                        total_price_change=abs(price_change.price_change_perc),
+                        relative_price_change=price_change.price_change_perc,
+                        total_volume_change=price_change.volume_change_perc,
+                        last_price=price_change.price,
+                        last_event_time=price_change.event_time,
+                        open=price_change.open,
+                        volume=price_change.volume,
+                        isPrinted=False,
                     )
                 else:
                     price_groups[price_change.symbol].tick_count += 1
@@ -198,7 +199,7 @@ def main(use_telegram_bot=False):
         for ticker in tickers:
             symbol = ticker["s"]
 
-            # skip this symbol if pair does not contains required pattern (e.g. USDT)
+            # skip this symbol if pair does not contain required pattern (e.g. USDT)
             if show_only_pair not in symbol:
                 continue
 
@@ -258,7 +259,7 @@ def main(use_telegram_bot=False):
     # ---- main starts here -----
     client = Client(api_config["api_key"], api_config["api_secret"])
     # client = AsyncClient(api_config["api_key"], api_config["api_secret"])
-    prices = client.get_all_tickers()
+    # prices = client.get_all_tickers()
     # pairs = list(pd.DataFrame(prices)["symbol"].values)
     # pairs = [pair for pair in pairs if "BTC" in pair]
     # print(pairs)

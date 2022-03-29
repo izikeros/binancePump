@@ -1,5 +1,5 @@
-from termcolor import colored
 import numpy as np
+from termcolor import colored
 
 
 class PriceGroup:
@@ -51,14 +51,15 @@ class PriceGroup:
         s = self.symbol
         t = self.last_event_time.strftime(time_fmt)
         tck = str(self.tick_count)
-        rpch = "{0:2.2f}".format(self.relative_price_change)
-        tpch = "{0:2.2f}".format(self.total_price_change)
-        vch = "{0:2.2f}".format(self.total_volume_change)
+        rpch = f"{self.relative_price_change:2.2f}"
+        tpch = f"{self.total_price_change:2.2f}"
+        vch = f"{self.total_volume_change:2.2f}"
         lp = str(self.last_price)
         lv = str(self.volume)
         llv = str(np.log10(self.volume))
-        # retval = f"{smsg:5} | {s:10s} | {t} | Ticks: {tck:3s} | RPCh: {rpch:5s} | TPch: {tpch:5s} | VCh: {vch:4s} | P: ${lp} | Volume:{lv} | LogV {llv}"
-        retval = f"{smsg:5} | {s:12s} | {t} | Ticks: {tck:3s} | RPCh: {rpch:5s} | TPch: {tpch:5s} | VCh: {vch:4s} | P: ${lp}"
+        # retval = f"{smsg:5} | {s:10s} | {t} | Ticks: {tck:3s} | RPCh: {rpch:5s} |"
+        # "TPch: {tpch:5s} | VCh: {vch:4s} | P: ${lp} | Volume:{lv} | LogV {llv}"
+        retval = f"{smsg:5} | {s:12s} | {t} | Ticks: {tck:3s} | RelPCh: {rpch:5s} | TotPch: {tpch:5s} | VCh: {vch:4s} | P: ${lp}"
         if not isColored:
             return retval
         else:

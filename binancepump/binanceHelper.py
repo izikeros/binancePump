@@ -32,7 +32,7 @@ def binanceDataFrame(klines):
     return df
 
 
-def date_to_milliseconds(date_str):
+def date_to_milliseconds(date_str: str) -> int:
     """Convert UTC date to milliseconds
     If using offset strings add "UTC" to date string e.g. "now UTC", "11 hours ago UTC"
     See dateparse docs for formats http://dateparser.readthedocs.io/en/latest/
@@ -53,7 +53,8 @@ def date_to_milliseconds(date_str):
 
 def interval_to_milliseconds(interval):
     """Convert a Binance interval string to milliseconds
-    :param interval: Binance interval string 1m, 3m, 5m, 15m, 30m, 1h, 2h, 4h, 6h, 8h, 12h, 1d, 3d, 1w
+    :param interval: Binance interval string 1m, 3m, 5m, 15m, 30m, 1h, 2h, 4h,
+                        6h, 8h, 12h, 1d, 3d, 1w
     :type interval: str
     :return:
          None if unit not one of m, h, d or w
@@ -72,9 +73,10 @@ def interval_to_milliseconds(interval):
     return ms
 
 
-def get_historical_klines(symbol, interval, start_str, end_str=None):
+def get_historical_klines(client, symbol, interval, start_str, end_str=None):
     """Get Historical Klines from Binance
-    See dateparse docs for valid start and end string formats http://dateparser.readthedocs.io/en/latest/
+    See dateparse docs for valid start and end string formats:
+     http://dateparser.readthedocs.io/en/latest/
     If using offset strings for dates add "UTC" to date string e.g. "now UTC", "11 hours ago UTC"
     :param symbol: Name of symbol pair e.g BNBBTC
     :type symbol: str
@@ -106,7 +108,8 @@ def get_historical_klines(symbol, interval, start_str, end_str=None):
         end_ts = date_to_milliseconds(end_str)
 
     idx = 0
-    # it can be difficult to know when a symbol was listed on Binance so allow start time to be before list date
+    # it can be difficult to know when a symbol was listed on Binance so allow start time to be
+    # before list date
     symbol_existed = False
     while True:
         # fetch the klines from start_ts up to max 500 entries or the end_ts if set
@@ -126,7 +129,8 @@ def get_historical_klines(symbol, interval, start_str, end_str=None):
             # append this loops data to our output data
             output_data += temp_data
 
-            # update our start timestamp using the last value in the array and add the interval timeframe
+            # update our start timestamp using the last value in the array and add the interval
+            # timeframe
             start_ts = temp_data[len(temp_data) - 1][0] + timeframe
         else:
             # it wasn't listed yet, increment our start date

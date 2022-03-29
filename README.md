@@ -3,9 +3,9 @@
 <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
 </p>
 
-# Binance Pump Detector 
+# Binance Pump Detector
 
-Tool that monitor trades on Binance to detect pump and dump events and display them in colors in the console. 
+Tool that monitor trades on Binance to detect pump and dump events and display them in colors in the console.
 
 E.g. roughly, when there is rapid increase in price and volume, it is considered as a pump event. Information about symbol name change in price and volume is displayed in console.
 
@@ -15,7 +15,7 @@ Creates a binance web socket and listen for trades. Aggregates information, grou
 prints out at the time interval most traded, price changed and volume changed symbol.
 This information could be detected an anomaly. An anomaly in binance could be leading to pump or dump.
 
-## How to run
+## How to run?
 
 ```bash
 $ git clone https://github.com/ogu83/binancePump.git
