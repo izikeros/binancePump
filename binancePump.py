@@ -4,8 +4,8 @@ import json
 import operator
 
 import telebot
-from binance.client import Client
-from binance.websockets import BinanceSocketManager
+from binance import BinanceSocketManager
+from binance.client import AsyncClient, Client
 
 from pricechange import *
 from pricegroup import *
