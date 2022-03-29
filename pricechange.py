@@ -22,18 +22,18 @@ class PriceChange:
         self.prev_volume = prev_volume
 
     def __repr__(self):
-        return repr(
-            self.symbol,
-            self.prev_price,
-            self.price,
-            self.total_trades,
-            self.open,
-            self.volume,
-            self.isPrinted,
-            self.event_time,
-            self.prev_volume,
-        )
-
+        return repr(self)
+        # return repr(
+        #     self.symbol,
+        #     self.prev_price,
+        #     self.price,
+        #     self.total_trades,
+        #     self.open,
+        #     self.volume,
+        #     self.isPrinted,
+        #     self.event_time,
+        #     self.prev_volume,
+        # )
     @property
     def volume_change(self):
         return self.volume - self.prev_volume
