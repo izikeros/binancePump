@@ -24,30 +24,6 @@ def set_chat_id(c):
     chat_ids.append(c)
 
 
-def add_price_change_to_list(price_changes_list, ticker: dict):
-    """Initialize price_changes object with data from ticker dict."""
-    symbol = ticker["s"]
-    price = float(ticker["c"])
-    total_trades = int(ticker["n"])
-    open_price = float(ticker["o"])
-    volume = float(ticker["v"])
-    event_time = dt.datetime.fromtimestamp(int(ticker["E"]) / 1000)
-    price_changes_list.append(
-        PriceChange(
-            symbol=symbol,
-            prev_price=price,
-            price=price,
-            total_trades=total_trades,
-            open=open_price,
-            volume=volume,
-            isPrinted=False,
-            event_time=event_time,
-            prev_volume=volume,
-        )
-    )
-    return price_changes_list
-
-
 def main(use_telegram_bot=False):
     # READ API CONFIG
     api_config = {}
@@ -84,6 +60,7 @@ def main(use_telegram_bot=False):
         )
 
     def process_message(tickers):
+        # TODO: KS: 2022-03-29: what is the input here - trades?
         # print("stream: {} data: {}".format(msg['stream'], msg['data']))
         # print("Len {}".format(len(msg)))
         # print("Current Price Of {} is {}".format(msg[0]['s'], msg[0]['c']))

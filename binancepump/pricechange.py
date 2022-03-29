@@ -1,3 +1,6 @@
+import datetime as dt
+
+
 class PriceChange:
     def __init__(
         self,
@@ -61,3 +64,27 @@ class PriceChange:
         if lim_perc > 0:
             lim_perc = -lim_perc
         return self.price_change_perc() <= lim_perc
+
+
+def add_price_change_to_list(price_changes_list, ticker: dict):
+    """Initialize price_changes object with data from ticker dict."""
+    symbol = ticker["s"]
+    price = float(ticker["c"])
+    total_trades = int(ticker["n"])
+    open_price = float(ticker["o"])
+    volume = float(ticker["v"])
+    event_time = dt.datetime.fromtimestamp(int(ticker["E"]) / 1000)
+    price_changes_list.append(
+        PriceChange(
+            symbol=symbol,
+            prev_price=price,
+            price=price,
+            total_trades=total_trades,
+            open=open_price,
+            volume=volume,
+            isPrinted=False,
+            event_time=event_time,
+            prev_volume=volume,
+        )
+    )
+    return price_changes_list
