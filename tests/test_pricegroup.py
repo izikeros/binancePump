@@ -1,5 +1,6 @@
 from datetime import datetime
-from binancepump.pricegroup import PriceGroup
+
+from binancepump.price_group import PriceGroup
 
 COLOR_RED = "\x1b[31m"
 COLOR_GREEN = "\x1b[32m"

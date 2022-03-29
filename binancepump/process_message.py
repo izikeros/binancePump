@@ -1,79 +1,23 @@
-import datetime
 import operator
 from typing import List
 
-from binancepump.binancePump import price_groups, show_limit, show_only_pair, price_changes, \
-    min_perc
-from binancepump.pricechange import PriceChange
-from binancepump.pricegroup import PriceGroup
+from binancepump.configuration import min_perc
+from binancepump.configuration import show_limit
+from binancepump.configuration import show_only_pair
+from binancepump.extract_data_from_ticker import extract_data_from_ticker
+from binancepump.price_change import PriceChange
+from binancepump.price_change import initialize_symbol_entry_in_price_changes_list
+from binancepump.price_group import PriceGroup
 
 
-def process_message(get_price_changes, get_price_groups, printing_func, tickers):
-    # TODO: KS: 2022-03-29: what is the input here - trades?
-    # print("stream: {} data: {}".format(msg['stream'], msg['data']))
-    # print("Len {}".format(len(msg)))
-    # print("Current Price Of {} is {}".format(msg[0]['s'], msg[0]['c']))
-
-    get_price_changes(tickers)
-
-    get_price_groups()
-
-    if len(price_groups) > 0:
-        anyPrinted = False
-
-        sorted_price_group = sorted(
-            price_groups, key=lambda k: price_groups[k]["tick_count"]
-        )
-        anyPrinted = printing_func(anyPrinted, sorted_price_group, msg="Top Ticks")
-
-        sorted_price_group = sorted(
-            price_groups, key=lambda k: price_groups[k]["total_price_change"]
-        )
-        anyPrinted = printing_func(
-            anyPrinted, sorted_price_group, msg="Top Total Price Change"
-        )
-
-        sorted_price_group = sorted(
-            price_groups,
-            key=lambda k: abs(price_groups[k]["relative_price_change"]),
-        )
-        anyPrinted = printing_func(
-            anyPrinted, sorted_price_group, msg="Top Relative Price Change"
-        )
-
-        sorted_price_group = sorted(
-            price_groups, key=lambda k: price_groups[k]["total_volume_change"]
-        )
-        anyPrinted = printing_func(
-            anyPrinted, sorted_price_group, msg="Top Total Volume Change"
-        )
-
-        # if anyPrinted:
-        #     print("")
-
-
-def printing_func(send_to_all_chat_ids, anyPrinted, sorted_price_group, msg):
-    if len(sorted_price_group) > 0:
-        sorted_price_group = list(reversed(sorted_price_group))
-        for s in range(show_limit):
-            header_printed = False
-            if s < len(sorted_price_group):
-                max_price_group = sorted_price_group[s]
-                max_price_group = price_groups[max_price_group]
-                if not max_price_group.isPrinted:
-                    if not header_printed:
-                        # print(msg)
-                        send_to_all_chat_ids(msg)
-                        header_printed = True
-                    smsg = "".join([word[0] for word in msg.split()])
-                    print(max_price_group.to_string(True, smsg))
-                    send_to_all_chat_ids(max_price_group.to_string(False))
-                    anyPrinted = True
-    return anyPrinted
-
-
-def get_price_changes(tickers: List[dict]):
+def get_price_changes(price_changes: List[PriceChange], tickers: List[dict]):
     """
+    requires: "E", "s", "c", "o", "n", "v"
+    All information except "n" is available in all market tickers stream:
+    https://github.com/binance/binance-spot-api-docs/blob/master/web-socket-streams.md#individual-symbol-mini-ticker-stream
+
+    If "n" is needed then use  all market tickers stream:
+    https://github.com/binance/binance-spot-api-docs/blob/master/web-socket-streams.md#individual-symbol-ticker-streams
 
     :param tickers: list with data for each ticker kept in separate dictionary
     :return:
@@ -85,43 +29,19 @@ def get_price_changes(tickers: List[dict]):
         if show_only_pair not in symbol:
             continue
 
-        # Extract data from dict for the ticker
-        price = float(ticker["c"])
-        total_trades = int(ticker["n"])
-        open_price = float(ticker["o"])
-        volume = float(ticker["v"])
-        event_time = dt.datetime.fromtimestamp(int(ticker["E"]) / 1000)
-        if len(price_changes) > 0:
-            price_change = filter(lambda item: item.symbol == symbol, price_changes)
-            price_change = list(price_change)
-            if len(price_change) > 0:
-                price_change = price_change[0]
-                price_change.event_time = event_time
-                price_change.prev_price = price_change.price
-                price_change.prev_volume = price_change.volume
-                price_change.price = price
-                price_change.total_trades = total_trades
-                price_change.open = open_price
-                price_change.volume = volume
-                price_change.isPrinted = False
-            else:
-                # initialize price_changes
-                # price_changes = add_price_change_to_list(price_changes, ticker)
-                price_changes.append(
-                    PriceChange(
-                        symbol=symbol,
-                        prev_price=price,
-                        price=price,
-                        total_trades=total_trades,
-                        open=open_price,
-                        volume=volume,
-                        isPrinted=False,
-                        event_time=event_time,
-                        prev_volume=volume,
-                    )
-                )
+        first_run = len(price_changes) == 0
 
+        if first_run:
+            update_empty_price_change_list(price_changes=price_changes, ticker=ticker)
         else:
+            (
+                symbol,
+                event_time,
+                open_price,
+                price,
+                total_trades,
+                volume,
+            ) = extract_data_from_ticker(ticker)
             price_changes.append(
                 PriceChange(
                     symbol=symbol,
@@ -136,36 +56,77 @@ def get_price_changes(tickers: List[dict]):
                 )
             )
     price_changes.sort(key=operator.attrgetter("price_change_perc"), reverse=True)
-    # print(len(price_changes))
 
 
-def get_price_groups():
+def update_empty_price_change_list(price_changes, ticker):
+    (
+        symbol,
+        event_time,
+        open_price,
+        price,
+        total_trades,
+        volume,
+    ) = extract_data_from_ticker(ticker)
+
+    # check if in the price_changes list there is already an entry for this symbol
+    # TODO: KS: 2022-03-29: price_changes should be rather dict than list?
+    symbol_price_change = filter(lambda item: item.symbol == symbol, price_changes)
+    symbol_price_change = list(symbol_price_change)
+    is_entry_for_this_symbol = len(symbol_price_change) > 0
+
+    if is_entry_for_this_symbol:
+        update_existing_symbol_entry(
+            event_time, open_price, price, symbol_price_change, total_trades, volume
+        )
+    else:
+        # initialize price_changes
+        initialize_symbol_entry_in_price_changes_list(
+            price_changes_list=price_changes, ticker=ticker
+        )
+
+
+def update_existing_symbol_entry(
+    event_time, open_price, price, symbol_price_change, total_trades, volume
+):
+    symbol_price_change = symbol_price_change[0]
+    symbol_price_change.event_time = event_time
+    symbol_price_change.prev_price = symbol_price_change.price
+    symbol_price_change.prev_volume = symbol_price_change.volume
+    symbol_price_change.price = price
+    symbol_price_change.total_trades = total_trades
+    symbol_price_change.open = open_price
+    symbol_price_change.volume = volume
+    symbol_price_change.isPrinted = False
+
+
+def get_price_groups(price_changes: List[PriceChange], price_groups: List[PriceGroup]):
     for price_change in price_changes:
         # console_color = "green"
         if price_change.price_change_perc < 0:
             # console_color = "red"
             pass
 
-        if (
-            not price_change.isPrinted
-            and abs(price_change.price_change_perc) > min_perc
-            and price_change.volume_change_perc > min_perc
-        ):
+        not_printed = not price_change.isPrinted
+        high_price_change = abs(price_change.price_change_perc) > min_perc
+        high_volume_change = abs(price_change.volume_change_perc) > min_perc
 
+        if not_printed and high_price_change and high_volume_change:
             price_change.isPrinted = True
 
-            if price_change.symbol not in price_groups:
-                price_groups[price_change.symbol] = PriceGroup(symbol=price_change.symbol,
-                                                               tick_count=1,
-                                                               total_price_change=abs(
-                                                                   price_change.price_change_perc),
-                                                               relative_price_change=price_change.price_change_perc,
-                                                               total_volume_change=price_change.volume_change_perc,
-                                                               last_price=price_change.price,
-                                                               last_event_time=price_change.event_time,
-                                                               open_price=price_change.open,
-                                                               volume=price_change.volume,
-                                                               is_printed=False)
+            new_pump_and_dump = price_change.symbol not in price_groups
+            if new_pump_and_dump:
+                price_groups[price_change.symbol] = PriceGroup(
+                    symbol=price_change.symbol,
+                    tick_count=1,
+                    total_price_change=abs(price_change.price_change_perc),
+                    relative_price_change=price_change.price_change_perc,
+                    total_volume_change=price_change.volume_change_perc,
+                    last_price=price_change.price,
+                    last_event_time=price_change.event_time,
+                    open_price=price_change.open,
+                    volume=price_change.volume,
+                    is_printed=False,
+                )
             else:
                 price_groups[price_change.symbol].tick_count += 1
                 price_groups[
@@ -183,3 +144,78 @@ def get_price_groups():
                 price_groups[
                     price_change.symbol
                 ].total_volume_change += price_change.volume_change_perc
+
+
+def process_message(tickers, price_groups, price_changes):
+    # TODO: KS: 2022-03-29: what is the input here - trades?
+
+    get_price_changes(price_changes=price_changes, tickers=tickers)
+
+    get_price_groups(price_changes=price_changes, price_groups=price_groups)
+
+    if len(price_groups) > 0:
+        anyPrinted = False
+
+        sorted_price_group = sorted(
+            price_groups, key=lambda k: price_groups[k]["tick_count"]
+        )
+        anyPrinted = printing_func(
+            anyPrinted=anyPrinted,
+            sorted_price_group=sorted_price_group,
+            msg="Top Ticks",
+            price_groups=price_groups,
+        )
+
+        sorted_price_group = sorted(
+            price_groups, key=lambda k: price_groups[k]["total_price_change"]
+        )
+        anyPrinted = printing_func(
+            anyPrinted,
+            sorted_price_group,
+            msg="Top Total Price Change",
+            price_groups=price_groups,
+        )
+
+        sorted_price_group = sorted(
+            price_groups,
+            key=lambda k: abs(price_groups[k]["relative_price_change"]),
+        )
+        anyPrinted = printing_func(
+            anyPrinted,
+            sorted_price_group,
+            msg="Top Relative Price Change",
+            price_groups=price_groups,
+        )
+
+        sorted_price_group = sorted(
+            price_groups, key=lambda k: price_groups[k]["total_volume_change"]
+        )
+        anyPrinted = printing_func(
+            anyPrinted,
+            sorted_price_group,
+            msg="Top Total Volume Change",
+            price_groups=price_groups,
+        )
+
+
+def printing_func(anyPrinted, sorted_price_group, msg, price_groups):
+    if len(sorted_price_group) > 0:
+        sorted_price_group = list(reversed(sorted_price_group))
+        for s in range(show_limit):
+            header_printed = False
+            if s < len(sorted_price_group):
+                max_price_group = sorted_price_group[s]
+                max_price_group = price_groups[max_price_group]
+                if not max_price_group.isPrinted:
+                    if not header_printed:
+                        send_to_all_chat_ids(msg)
+                        header_printed = True
+                    smsg = "".join([word[0] for word in msg.split()])
+                    print(max_price_group.to_string(True, smsg))
+                    send_to_all_chat_ids(max_price_group.to_string(False))
+                    anyPrinted = True
+    return anyPrinted
+
+
+def send_to_all_chat_ids(msg):
+    pass

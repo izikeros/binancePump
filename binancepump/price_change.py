@@ -1,4 +1,4 @@
-import datetime
+from binancepump.extract_data_from_ticker import extract_data_from_ticker
 
 
 class PriceChange:
@@ -25,18 +25,17 @@ class PriceChange:
         self.prev_volume = prev_volume
 
     def __repr__(self):
-        return repr(self)
-        # return repr(
-        #     self.symbol,
-        #     self.prev_price,
-        #     self.price,
-        #     self.total_trades,
-        #     self.open,
-        #     self.volume,
-        #     self.isPrinted,
-        #     self.event_time,
-        #     self.prev_volume,
-        # )
+        symbol = f"symbol={self.symbol}"
+        prev_price = f"prev_price={self.prev_price}"
+        price = f"price={self.price}"
+        total_trades = f"total_trades={self.total_trades}"
+        open_price = f"open={self.open}"
+        volume = f"volume={self.volume}"
+        isPrinted = f"isPrinted={self.isPrinted}"
+        event_time = f"event_time={self.event_time}"
+        prev_volume = f"prev_volume={self.prev_volume}"
+
+        return f"PriceChange({symbol}, {prev_price}, {price}, {total_trades}, {open_price}, {volume}, {isPrinted}, {event_time}, {prev_volume})"
 
     @property
     def volume_change(self):
@@ -66,14 +65,17 @@ class PriceChange:
         return self.price_change_perc() <= lim_perc
 
 
-def add_price_change_to_list(price_changes_list, ticker: dict):
-    """Initialize price_changes object with data from ticker dict."""
-    symbol = ticker["s"]
-    price = float(ticker["c"])
-    total_trades = int(ticker["n"])
-    open_price = float(ticker["o"])
-    volume = float(ticker["v"])
-    event_time = datetime.datetime.fromtimestamp(int(ticker["E"]) / 1000)
+def initialize_symbol_entry_in_price_changes_list(price_changes_list, ticker):
+    """Initialize object in price_changes for given symbol"""
+    (
+        symbol,
+        event_time,
+        open_price,
+        price,
+        total_trades,
+        volume,
+    ) = extract_data_from_ticker(ticker)
+
     price_changes_list.append(
         PriceChange(
             symbol=symbol,
@@ -87,4 +89,3 @@ def add_price_change_to_list(price_changes_list, ticker: dict):
             prev_volume=volume,
         )
     )
-    return price_changes_list

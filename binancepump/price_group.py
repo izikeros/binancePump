@@ -29,22 +29,22 @@ class PriceGroup:
         self.isPrinted = is_printed
 
     def __repr__(self):
-        symbol_s = f"symbol={self.symbol}"
-        tick_count_s = f"tick_count={self.tick_count}"
-        total_price_change_s = f"total_price_change={self.total_price_change}"
-        relative_price_change_s = f"relative_price_change={self.relative_price_change}"
-        total_volume_change_s = f"total_volume_change={self.total_volume_change}"
-        last_price_s = f"last_price={self.last_price}"
-        last_event_time_s = f"last_event_time={self.last_event_time}"
-        open_price_s = f"open_price={self.open}"
-        volume_s = f"volume={self.volume}"
-        is_printed_s = f"is_printed={self.isPrinted}"
+        symbol = f"symbol={self.symbol}"
+        tick_count = f"tick_count={self.tick_count}"
+        total_price_change = f"total_price_change={self.total_price_change}"
+        relative_price_change = f"relative_price_change={self.relative_price_change}"
+        total_volume_change = f"total_volume_change={self.total_volume_change}"
+        last_price = f"last_price={self.last_price}"
+        last_event_time = f"last_event_time={self.last_event_time}"
+        open_price = f"open_price={self.open}"
+        volume = f"volume={self.volume}"
+        is_printed = f"is_printed={self.isPrinted}"
 
         return (
-            f"PriceGroup({symbol_s}, {tick_count_s}, {total_price_change_s},"
-            f" {relative_price_change_s}, {total_volume_change_s},"
-            f" {last_price_s}, {last_event_time_s}, {open_price_s},"
-            f" {volume_s}, {is_printed_s}) "
+            f"PriceGroup({symbol}, {tick_count}, {total_price_change},"
+            f" {relative_price_change}, {total_volume_change},"
+            f" {last_price}, {last_event_time}, {open_price},"
+            f" {volume}, {is_printed}) "
         )
 
     def __getitem__(self, key):
@@ -52,19 +52,8 @@ class PriceGroup:
 
     def to_string(self, is_colored, smsg=""):
         self.isPrinted = True
-        # fmt_1 = "Symbol:{}\t Time:{}\t Ticks:{}\t RPCh:{}\t TPCh:{}\t VCh:{}\t LP:{}\t LV:{}\t"
-        # fmt_2 = "{}\t Time:{}\t Ticks:{}\t RPCh:{}\t TPCh:{}\t VCh:{}\t LP:{}\t LV:{}\t"
         time_fmt = "%H:%M:%S"
-        # retval = fmt_2.format(
-        #     self.symbol,
-        #     self.last_event_time.strftime(time_fmt),
-        #     self.tick_count,
-        #     "{0:2.2f}".format(self.relative_price_change),
-        #     "{0:2.2f}".format(self.total_price_change),
-        #     "{0:2.2f}".format(self.total_volume_change),
-        #     self.last_price,
-        #     self.volume,
-        # )
+
         s = self.symbol
         t = self.last_event_time.strftime(time_fmt)
         tck = str(self.tick_count)
@@ -72,10 +61,15 @@ class PriceGroup:
         tpch = f"{self.total_price_change:2.2f}"
         vch = f"{self.total_volume_change:2.2f}"
         lp = str(self.last_price)
+
+        # TODO: KS: 2022-03-29: Add configuration parameter to display volume and log volume
+        # last volume
         lv = str(self.volume)
+        # last logarithmic volume
         llv = str(np.log10(self.volume))
         # retval = f"{smsg:5} | {s:10s} | {t} | Ticks: {tck:3s} | RPCh: {rpch:5s} |"
         # "TPch: {tpch:5s} | VCh: {vch:4s} | P: ${lp} | Volume:{lv} | LogV {llv}"
+
         retval = f"{smsg:5} | {s:12s} | {t} | Ticks: {tck:3s} | RelPCh: {rpch:5s} | TotPch: {tpch:5s} | VCh: {vch:4s} | P: ${lp}"
         if not is_colored:
             return retval
