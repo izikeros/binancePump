@@ -2,6 +2,7 @@ import numpy as np
 from termcolor import colored
 
 
+# TODO: KS: 2022-03-29: Consider using dataclasses.dataclass
 class PriceGroup:
     def __init__(
         self,
@@ -28,7 +29,23 @@ class PriceGroup:
         self.isPrinted = is_printed
 
     def __repr__(self):
-        return repr(self)
+        symbol_s = f"symbol={self.symbol}"
+        tick_count_s = f"tick_count={self.tick_count}"
+        total_price_change_s = f"total_price_change={self.total_price_change}"
+        relative_price_change_s = f"relative_price_change={self.relative_price_change}"
+        total_volume_change_s = f"total_volume_change={self.total_volume_change}"
+        last_price_s = f"last_price={self.last_price}"
+        last_event_time_s = f"last_event_time={self.last_event_time}"
+        open_price_s = f"open_price={self.open}"
+        volume_s = f"volume={self.volume}"
+        is_printed_s = f"is_printed={self.isPrinted}"
+
+        return (
+            f"PriceGroup({symbol_s}, {tick_count_s}, {total_price_change_s},"
+            f" {relative_price_change_s}, {total_volume_change_s},"
+            f" {last_price_s}, {last_event_time_s}, {open_price_s},"
+            f" {volume_s}, {is_printed_s}) "
+        )
 
     def __getitem__(self, key):
         return getattr(self, key)

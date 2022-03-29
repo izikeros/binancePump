@@ -1,4 +1,4 @@
-import datetime as dt
+import datetime
 
 
 class PriceChange:
@@ -73,7 +73,7 @@ def add_price_change_to_list(price_changes_list, ticker: dict):
     total_trades = int(ticker["n"])
     open_price = float(ticker["o"])
     volume = float(ticker["v"])
-    event_time = dt.datetime.fromtimestamp(int(ticker["E"]) / 1000)
+    event_time = datetime.datetime.fromtimestamp(int(ticker["E"]) / 1000)
     price_changes_list.append(
         PriceChange(
             symbol=symbol,
