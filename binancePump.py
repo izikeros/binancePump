@@ -250,23 +250,25 @@ def main(use_telegram_bot=False):
             if anyPrinted:
                 print("")
 
+    # ---- main starts here -----
     client = Client(api_config["api_key"], api_config["api_secret"])
-    # prices = client.get_all_tickers()
-    # pairs = list(pd.DataFrame(prices)['symbol'].values)
-    # pairs = [pair for pair in pairs if 'BTC' in pair]
+    # client = AsyncClient(api_config["api_key"], api_config["api_secret"])
+    prices = client.get_all_tickers()
+    # pairs = list(pd.DataFrame(prices)["symbol"].values)
+    # pairs = [pair for pair in pairs if "BTC" in pair]
     # print(pairs)
 
     bm = BinanceSocketManager(client)
-    conn_key = bm.start_ticker_socket(process_message)
-    bm.start()
+    conn_key = bm.ticker_socket()
+    # bm.start()
     print("bm socket started")
 
     tb.polling()
     print("tb socket started")
 
-    input("Press Enter to continue...")
-    bm.stop_socket(conn_key)
-    bm.close()
+    input("Press Enter to close connection...")
+    bm._stop_socket(conn_key)  # or _exit_socket(conn_key)
+    # bm.close()
     print("Socket Closed")
     return
 
