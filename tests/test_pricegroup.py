@@ -1,7 +1,9 @@
 from datetime import datetime
 from binancepump.pricegroup import PriceGroup
+
 COLOR_RED = "\x1b[31m"
 COLOR_GREEN = "\x1b[32m"
+
 
 class TestPriceGroup:
     def setup_method(self):
