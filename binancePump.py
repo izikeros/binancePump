@@ -2,6 +2,7 @@ import argparse
 import datetime as dt
 import json
 import operator
+from typing import List
 
 import telebot
 from binance import BinanceSocketManager
@@ -9,6 +10,7 @@ from binance.client import AsyncClient, Client
 
 from pricechange import *
 from pricegroup import *
+
 
 show_only_pair = "USDT"  # Select nothing for all, only selected currency will be shown
 show_limit = 1  # minimum top query limit
