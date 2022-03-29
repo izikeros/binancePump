@@ -1,6 +1,13 @@
-# binancePump
+<p>
+<a href="https://github.com/pre-commit/pre-commit"><img src="https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white" alt="pre-commit" style="max-width:100%;"></a>
+<a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
+</p>
 
-Binance Pump Detector 
+# Binance Pump Detector 
+
+Tool that monitor trades on Binance to detect pump and dump events and display them in colors in the console. 
+
+E.g. roughly, when there is rapid increase in price and volume, it is considered as a pump event. Information about symbol name change in price and volume is displayed in console.
 
 
 ## How it works?
@@ -14,7 +21,7 @@ This information could be detected an anomaly. An anomaly in binance could be le
 $ git clone https://github.com/ogu83/binancePump.git
 $ pip3 install termcolor joblib tqdm numpy pandas python-binance pyTelegramBotAPI
 ```
-Requires api details for telegram bot and for binance client. Before running, create own `api_config.json` and fill with keys and secret (remember not  to put these secrets into public repository).
+Requires api details for telegram bot and for binance client. Before running, create own `api_config.json` and fill with keys and secret (remember not to put these secrets into public repository).
 
 Finally, run the detector:
 ```bash
