@@ -28,18 +28,7 @@ class PriceGroup:
         self.isPrinted = isPrinted
 
     def __repr__(self):
-        return repr(
-            self.symbol,
-            self.tick_count,
-            self.total_price_change,
-            self.total_volume_change,
-            self.relative_price_change,
-            self.last_price,
-            self.last_event_time,
-            self.open,
-            self.volume,
-            self.isPrinted,
-        )
+        return repr(self)
 
     def __getitem__(self, key):
         return getattr(self, key)
