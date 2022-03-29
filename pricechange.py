@@ -53,11 +53,10 @@ class PriceChange:
         else:
             return self.price_change / self.prev_price * 100
 
-    def IsPump(self, lim_perc):
+    def is_pump(self, lim_perc):
         return self.price_change_perc() >= lim_perc
 
-    def IsDump(self, lim_perc):
+    def is_dump(self, lim_perc):
         if lim_perc > 0:
             lim_perc = -lim_perc
-
         return self.price_change_perc() <= lim_perc
