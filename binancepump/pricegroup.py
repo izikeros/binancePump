@@ -5,16 +5,16 @@ from termcolor import colored
 class PriceGroup:
     def __init__(
         self,
-        symbol,
-        tick_count,
-        total_price_change,
-        relative_price_change,
-        total_volume_change,
-        last_price,
+        symbol: str,
+        tick_count: int,
+        total_price_change: float,
+        relative_price_change: float,
+        total_volume_change: float,
+        last_price: float,
         last_event_time,
-        open,
-        volume,
-        isPrinted,
+        open_price: float,
+        volume: float,
+        is_printed: bool,
     ):
         self.symbol = symbol
         self.tick_count = tick_count
@@ -23,9 +23,9 @@ class PriceGroup:
         self.total_volume_change = total_volume_change
         self.last_price = last_price
         self.last_event_time = last_event_time
-        self.open = (open,)
+        self.open = (open_price,)
         self.volume = volume
-        self.isPrinted = isPrinted
+        self.isPrinted = is_printed
 
     def __repr__(self):
         return repr(self)
@@ -33,7 +33,7 @@ class PriceGroup:
     def __getitem__(self, key):
         return getattr(self, key)
 
-    def to_string(self, isColored, smsg=""):
+    def to_string(self, is_colored, smsg=""):
         self.isPrinted = True
         # fmt_1 = "Symbol:{}\t Time:{}\t Ticks:{}\t RPCh:{}\t TPCh:{}\t VCh:{}\t LP:{}\t LV:{}\t"
         # fmt_2 = "{}\t Time:{}\t Ticks:{}\t RPCh:{}\t TPCh:{}\t VCh:{}\t LP:{}\t LV:{}\t"
@@ -60,9 +60,10 @@ class PriceGroup:
         # retval = f"{smsg:5} | {s:10s} | {t} | Ticks: {tck:3s} | RPCh: {rpch:5s} |"
         # "TPch: {tpch:5s} | VCh: {vch:4s} | P: ${lp} | Volume:{lv} | LogV {llv}"
         retval = f"{smsg:5} | {s:12s} | {t} | Ticks: {tck:3s} | RelPCh: {rpch:5s} | TotPch: {tpch:5s} | VCh: {vch:4s} | P: ${lp}"
-        if not isColored:
+        if not is_colored:
             return retval
         else:
+            # TODO: KS: 2022-03-29: Replace termcolor with rich
             return colored(retval, self.console_color)
 
     @property
