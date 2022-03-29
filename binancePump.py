@@ -32,11 +32,13 @@ def main(use_telegram_bot=False):
         api_config = json.load(json_data)
         json_data.close()
 
-    if use_telegram_bot:
-        TOKEN = api_config["telegram_bot_token"]
-        tb = telebot.TeleBot(TOKEN)  # create a new Telegram Bot object
-    else:
-        tb = None
+    TOKEN = api_config["telegram_bot_token"]
+    tb = telebot.TeleBot(TOKEN)  # create a new Telegram Bot object
+    # if use_telegram_bot:
+    #     TOKEN = api_config["telegram_bot_token"]
+    #     tb = telebot.TeleBot(TOKEN)  # create a new Telegram Bot object
+    # else:
+    #     tb = None
 
     def send_message(chat_id, msg):
         try:
