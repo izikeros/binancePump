@@ -25,6 +25,30 @@ def set_chat_id(c):
     chat_ids.append(c)
 
 
+def add_price_change_to_list(price_changes_list, ticker: dict):
+    """Initialize price_changes object with data from ticker dict."""
+    symbol = ticker["s"]
+    price = float(ticker["c"])
+    total_trades = int(ticker["n"])
+    open_price = float(ticker["o"])
+    volume = float(ticker["v"])
+    event_time = dt.datetime.fromtimestamp(int(ticker["E"]) / 1000)
+    price_changes_list.append(
+        PriceChange(
+            symbol,
+            price,
+            price,
+            total_trades,
+            open_price,
+            volume,
+            False,
+            event_time,
+            volume,
+        )
+    )
+    return price_changes_list
+
+
 def main(use_telegram_bot=False):
     # READ API CONFIG
     api_config = {}
