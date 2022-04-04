@@ -1,4 +1,4 @@
-show_only_pair = "USDT"     # Select nothing for all, only selected currency will be shown
-show_limit = 1              # minimum top query limit
-min_perc = 0            # min percentage change (default 0.05)
-#last_symbol = "X"           # candle closing data
+SHOW_ONLY_PAIR: str = "USDT"     # Select nothing for all, only selected currency will be shown
+SHOW_LIMIT: int = 3              # How many top pairs to show for each sorting criterion
+PRICE_MIN_PERC: float = 0.05            # min percentage change (default 0.05)
+VOLUME_MIN_PERC: float = 0.05            # min percentage change (default 0.05)

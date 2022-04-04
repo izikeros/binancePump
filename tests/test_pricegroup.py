@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from binancepump.price_group import PriceGroup
+from binancepump.price_group import PumpOrDumpEventTracker
 
 COLOR_RED = "\x1b[31m"
 COLOR_GREEN = "\x1b[32m"
@@ -10,7 +10,7 @@ class TestPriceGroup:
     def setup_method(self):
         cr_date = datetime(2021, 10, 31, 18, 23, 29, 227)
 
-        self.PG = PriceGroup(
+        self.PG = PumpOrDumpEventTracker(
             symbol="ETHBTC",
             tick_count=10,
             total_price_change=0.1,

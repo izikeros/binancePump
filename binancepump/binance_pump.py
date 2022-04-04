@@ -1,18 +1,22 @@
 import json
 
+from binancepump import logger
+
 import rel
 import websocket
 from binancepump.process_message import process_message
 
+
 rel.safe_read()
 endpoint = "wss://stream.binance.com:9443"
 
-price_changes = []
+price_changes = {}
 price_groups = {}
 
 
 def on_message(ws, message):
     json_message = json.loads(message)
+    logger.debug("Received message with %d symbols", len(json_message))
     process_message(
         tickers=json_message, price_groups=price_groups, price_changes=price_changes
     )
