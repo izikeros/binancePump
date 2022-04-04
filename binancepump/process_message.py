@@ -2,7 +2,7 @@ import operator
 from typing import List, Dict
 
 from binancepump import logger
-from binancepump.configuration import MIN_PERC, PRICE_MIN_PERC, VOLUME_MIN_PERC
+from binancepump.configuration import PRICE_MIN_PERC, VOLUME_MIN_PERC
 from binancepump.configuration import SHOW_LIMIT
 from binancepump.configuration import SHOW_ONLY_PAIR
 from binancepump.extract_data_from_ticker import extract_data_from_ticker
@@ -108,7 +108,7 @@ def update_pnd_events(
                     total_volume_change=coin.volume_change_perc,
                     last_price=coin.price,
                     last_event_time=coin.event_time,
-                    open_price=coin.open_price,
+                    open_price=coin.price,
                     volume=coin.volume,
                     is_printed=False,
                 )
@@ -122,37 +122,6 @@ def update_pnd_events(
                 pnd_events[s].absolute_price_change += abs(coin.price_change_perc)
                 pnd_events[s].relative_price_change += coin.price_change_perc
                 pnd_events[s].total_volume_change += coin.volume_change_perc
-
-
-def process_message(tickers, price_groups, price_changes):
-    # TODO: KS: 2022-03-29: what is the input here - trades?
-
-    # calculate price changes for each symbol of interest
-    price_changes = update_price_changes(price_changes=price_changes, tickers=tickers)
-
-    update_pnd_events(price_changes=price_changes, pnd_events=price_groups)
-
-    # criteria tuple format: (sorting criterion, Label for the criterion)
-    criteria = [
-        # ("tick_count", "Ticks"),
-        ("absolute_price_change", "Absolute Price Change"),
-        ("relative_price_change", "Relative Price Change"),
-        ("total_volume_change", "Total Volume Change"),
-    ]
-
-    are_any_pnd_events = len(price_groups)
-    if are_any_pnd_events:
-        for i, criterion in enumerate(criteria):
-            # print(f"Reason: {criterion[1]}")
-            sorted_price_group = sorted(
-                price_groups, key=lambda k: price_groups[k][criterion[0]]
-            )
-
-            display_interesting_pairs(
-                sorted_pnd_events=sorted_price_group,
-                reason_msg=criterion[1],
-                pnd_events=price_groups,
-            )
 
 
 def display_interesting_pairs(
@@ -171,17 +140,17 @@ def display_interesting_pairs(
     """
     if len(sorted_pnd_events) > 0:
         sorted_pnd_events = list(reversed(sorted_pnd_events))
-        for rank, symbol_idx in enumerate(range(SHOW_LIMIT)):
+        for symbol_idx in range(SHOW_LIMIT):
             if symbol_idx < len(sorted_pnd_events):
                 # check if the symbol has been printed (e.g. due to being in the top N in other
                 # ranking
-                max_price_group_from_sorted = sorted_pnd_events[symbol_idx]
-                max_price_group = pnd_events[max_price_group_from_sorted]
+                max_pnd_from_sorted = sorted_pnd_events[symbol_idx]
+                max_pnd = pnd_events[max_pnd_from_sorted]
 
-                if not max_price_group.is_printed:
+                if not max_pnd.is_printed:
                     short_reason_message = create_short_message(reason_msg)
                     # print the interesting symbol info to the console
-                    print(max_price_group.to_string(True, short_reason_message))
+                    print(max_pnd.to_string(True, short_reason_message))
 
 
 def create_short_message(msg):
@@ -195,3 +164,36 @@ def create_short_message(msg):
     """
     short_msg = "".join([word[0] for word in msg.split()])
     return short_msg
+
+
+def process_message(tickers, price_groups, price_changes):
+    # TODO: KS: 2022-03-29: what is the input here - trades?
+
+    # calculate price changes for each symbol of interest
+    price_changes = update_price_changes(price_changes=price_changes, tickers=tickers)
+
+    update_pnd_events(price_changes=price_changes, pnd_events=price_groups)
+
+    # criteria tuple format: (sorting criterion, Label for the criterion)
+    criteria = [
+        # ("tick_count", "Ticks"),
+        ("absolute_price_change", "Price Change"),
+        # ("relative_price_change", "Relative Price Change"),
+        ("total_volume_change", "Volume Change"),
+    ]
+
+    are_any_pnd_events = len(price_groups)
+    if are_any_pnd_events:
+        for i, criterion in enumerate(criteria):
+            # print(f"Reason: {criterion[1]}")
+            sorted_pnd_events = sorted(
+                price_groups, key=lambda k: price_groups[k][criterion[0]]
+            )
+
+            display_interesting_pairs(
+                sorted_pnd_events=sorted_pnd_events,
+                reason_msg=criterion[1],
+                pnd_events=price_groups,
+            )
+    # TODO: KS: 2022-04-04: modify ticks count for each event (to eliminate events that are not
+    #  active for a long time)

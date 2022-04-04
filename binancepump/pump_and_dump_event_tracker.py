@@ -32,9 +32,10 @@ class PumpOrDumpEventTracker:
         t = self.last_event_time.strftime(time_fmt)
         tck = str(self.tick_count)
         rpch = f"{self.relative_price_change:2.2f}"
-        tpch = f"{self.absolute_price_change:2.2f}"
+        # tpch = f"{self.absolute_price_change:2.2f}"
         vch = f"{self.total_volume_change:2.2f}"
         lp = str(self.last_price)
+        op = str(self.open_price)
 
         # TODO: KS: 2022-03-29: Add configuration parameter to display volume and log volume
         # last volume
@@ -44,7 +45,9 @@ class PumpOrDumpEventTracker:
         # retval = f"{smsg:5} | {s:10s} | {t} | Ticks: {tck:3s} | RPCh: {rpch:5s} |"
         # "TPch: {tpch:5s} | VCh: {vch:4s} | P: ${lp} | Volume:{lv} | LogV {llv}"
 
-        retval = f"{smsg:5} | {s:12s} | {t} | Ticks: {tck:3s} | RelPCh: {rpch:5s} | TotPch: {tpch:5s} | VCh: {vch:4s} | P: ${lp}"
+        #retval = f"{smsg:5} | {s:12s} | {t} | Ticks: {tck:3s} | RelPCh: {rpch:5s} | TotPch: {tpch:5s} | VCh: {vch:4s} | P: ${lp}"
+        smsg = f"{smsg}"
+        retval = f"{smsg:5} | {s:12s} | {t} | Ticks: {tck:3s} | RelPCh: {rpch:5s} | VCh: {vch:4s} | P: ${lp} | oP: ${op}"
         if not is_colored:
             return retval
         else:
