@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from binancepump.price_group import PumpOrDumpEventTracker
+from pump_and_dump_event_tracker import PumpOrDumpEventTracker
 
 COLOR_RED = "\x1b[31m"
 COLOR_GREEN = "\x1b[32m"
@@ -13,7 +13,7 @@ class TestPriceGroup:
         self.PG = PumpOrDumpEventTracker(
             symbol="ETHBTC",
             tick_count=10,
-            total_price_change=0.1,
+            absolute_price_change=0.1,
             relative_price_change=0.1,
             total_volume_change=0.1,
             last_price=0.1,
@@ -24,26 +24,26 @@ class TestPriceGroup:
         )
 
     def test_to_string__no_color(self):
-        self.PG.relative_price_change = 2.2
-        txt = self.PG.to_string(is_colored=False)
+        self.PG.price_change_perc = 2.2
+        txt = self.PG.to_string()
         assert txt.startswith("   ")
 
     def test_to_string__relative_change_negative(self):
-        self.PG.relative_price_change = -3.2
-        txt = self.PG.to_string(is_colored=True)
+        self.PG.price_change_perc = -3.2
+        txt = self.PG.to_string()
         assert txt.startswith(COLOR_RED)
         assert len(txt) > 70
 
     def test_to_string__relative_change_positive(self):
-        self.PG.relative_price_change = 2.2
-        txt = self.PG.to_string(is_colored=True)
+        self.PG.price_change_perc = 2.2
+        txt = self.PG.to_string()
         assert txt.startswith(COLOR_GREEN)
         assert len(txt) > 70
 
     def test_console_color__relative_change_positive(self):
-        self.PG.relative_price_change = 2.2
+        self.PG.price_change_perc = 2.2
         assert self.PG.console_color == "green"
 
     def test_console_color__relative_change_negative(self):
-        self.PG.relative_price_change = -3.2
+        self.PG.price_change_perc = -3.2
         assert self.PG.console_color == "red"
