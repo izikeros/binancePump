@@ -2,3 +2,5 @@ api_config.json
 *.pyc
 __pycache__/
 .pytest_cache/
+/traces/
+*.egg-info/
