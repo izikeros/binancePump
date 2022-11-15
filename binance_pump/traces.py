@@ -1,15 +1,13 @@
 import json
 from pathlib import Path
-from typing import List
 
 import numpy as np
-
 from pump_and_dump_event_tracker import PumpOrDumpEventTracker
 
 
 class Traces:
     def __init__(self, traces_dir: Path):
-        self.traces: List[PumpOrDumpEventTracker] = []
+        self.traces: list[PumpOrDumpEventTracker] = []
         self.traces_dir = traces_dir
 
     def _load_traces_as_json(self, filename):
