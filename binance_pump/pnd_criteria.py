@@ -1,6 +1,6 @@
 from collections import namedtuple
 
-from configuration import TOTAL_PRICE_PERC_TH
+from binance_pump.configuration import conf
 
 Criterion = namedtuple("Criterion", ["type", "label", "threshold"])
 criteria = [
@@ -8,16 +8,16 @@ criteria = [
     Criterion(
         type="total_price_change_perc",
         label="Total Price Change Prc",
-        threshold=TOTAL_PRICE_PERC_TH,
+        threshold=conf.TOTAL_PRICE_PERC_TH,
     ),
     # Criterion(
     #     type="price_change_perc",
     #     label="Price Change Prc",
-    #     threshold=PRICE_PERC_TH,
+    #     threshold=PRICE_CHANGE_PERC_TH,
     # ),
     # Criterion(
     #     type="volume_change_perc",
     #     label="Volume Change Prc",
-    #     threshold=VOLUME_PERC_TH,
+    #     threshold=VOLUME_CHANGE_PERC_TH,
     # ),
 ]
