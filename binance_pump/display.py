@@ -1,6 +1,3 @@
-from typing import Dict
-from typing import List
-
 from binance_pump.configuration import conf
 from binance_pump.pump_and_dump_event_tracker import PumpOrDumpEventTracker
 from rich.console import Console
@@ -9,8 +6,8 @@ console = Console()
 
 
 def display_interesting_coins(
-    sorted_pnd_symbols: List[str],
-    pnd_events: Dict[str, PumpOrDumpEventTracker],
+    sorted_pnd_symbols: list[str],
+    pnd_events: dict[str, PumpOrDumpEventTracker],
 ):
     """Function that prints top PnD events from the list and send to messenger.
 
