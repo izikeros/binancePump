@@ -19,9 +19,9 @@ This information could be detected an anomaly. An anomaly in binance could be le
 
 ```bash
 $ git clone https://github.com/ogu83/binancePump.git
-$ pip3 install termcolor joblib tqdm numpy pandas python-binance pyTelegramBotAPI
+$ pip3 install -r requirements.txt
 ```
-Requires api details for telegram bot and for binance client. Before running, create own `api_config.json` and fill with keys and secret (remember not to put these secrets into public repository).
+Requires api credentials for binance client. Before running, create own `api_config.json` and fill with keys and secret (remember not to put these secrets into public repository).
 
 Finally, run the detector:
 ```bash
@@ -37,3 +37,8 @@ This project is a fork of [ogu83/binancePump](https://github.com/ogu83/binancePu
 
 ## See also:
 https://python-binance.readthedocs.io/en/latest/websockets.html
+[How to code a Binance Trading bot that detects the most volatile coins on Binance](https://www.cryptomaton.org/2021/05/08/how-to-code-a-binance-trading-bot-that-detects-the-most-volatile-coins-on-binance/)
+
+[MOMENTUM TRADING, RETURN CHASING, AND PREDICTABLE CRASHES]
+(https://www.nber.org/system/files/working_papers/w20660/w20660.pdf)
+https://github.com/cac90909/5.13-Trading-Automation
