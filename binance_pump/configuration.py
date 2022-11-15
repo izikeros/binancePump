@@ -1,9 +1,12 @@
 from pathlib import Path
 
-from pydantic_yaml import YamlModel
+from pydantic import BaseModel
+
+# from pydantic_yaml import YamlModel
 
 
-class Configuration(YamlModel):
+class Configuration(BaseModel):
+    STREAM = "/ws/!miniTicker@arr"
     # --- Traces ---
     # directory to store dumps from monitoring
     TRACES_DIRECTORY: Path = Path(__file__).parent.parent / "traces"
@@ -32,6 +35,10 @@ class Configuration(YamlModel):
     TICK_SUBTRACT_VALUE: float = 1
     TICK_REDUCE_MULTIPLIER: float = 0.9
     SKIP_SAVING_EVENTS_SHORTER_THAN_N_TICKS: int = 3  # in ticks
+
+    DISPLAY_FOOTER = False
+
+    ENDPOINT = "wss://stream.binance.com:9443"
 
 
 conf = Configuration()

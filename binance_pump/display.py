@@ -17,7 +17,7 @@ def display_interesting_coins(
         pnd_events: Dictionary of price groups.
 
     """
-    if len(sorted_pnd_symbols) > 0:
+    if sorted_pnd_symbols:
         sorted_pnd_symbols = list(reversed(sorted_pnd_symbols))
         max_range = min(len(sorted_pnd_symbols), conf.SHOW_LIMIT)
         for symbol_idx in range(max_range):

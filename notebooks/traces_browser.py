@@ -32,17 +32,21 @@
 
 # %%
 # add parent dir to python path
+import os
 import sys
+from pathlib import Path
+
+import ipywidgets as widgets
+import numpy as np
+import plotly.graph_objects as go
+from binance_pump.traces import Traces
+from ipywidgets import interact
 
 sys.path.insert(0, "..")
 
 # %%
 # %autoreload
 # Add parent directory to path
-from pathlib import Path
-import plotly.graph_objects as go
-import os
-from binance_pump.traces import Traces
 
 # %%
 traces_dir = Path("../traces")
@@ -82,8 +86,6 @@ long_traces = [t for t in trc.traces if len(t.price_history) >= 5]
 len(short_traces)
 
 # %%
-import plotly.graph_objects as go
-import numpy as np
 
 max_price_short = np.log([t.max_total_price_change_prc for t in short_traces])
 max_price_long = np.log([t.max_total_price_change_prc for t in long_traces])
@@ -110,14 +112,11 @@ trc.traces[0].length
 def display_func(line_id):
     fig = go.Figure()
     p = trc.traces[line_id].price_history
-    ts=trc.traces[line_id].timestamps
+    ts = trc.traces[line_id].timestamps
 
     fig.add_trace(go.Scatter(x=ts[1:], y=p[1:], mode="lines+markers", name="lines"))
     fig.show()
 
-
-from ipywidgets import interact
-import ipywidgets as widgets
 
 # or interact_manual - do not compute for states during the slider move
 interact(

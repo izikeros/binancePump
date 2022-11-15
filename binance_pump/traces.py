@@ -35,7 +35,14 @@ class Traces:
 
 
 # TODO: KS: 2022-04-19: add this as method to ActiveTraces
-def new_pnd(coin, pnd_events):
+def add_new_pnd(coin, pnd_events):
+    """Add new PND event to the list of PND events.
+
+    Args:
+        coin (Coin): Coin object.
+        pnd_events (dict): Dictionary of PND events.
+
+    """
     pnd_events[coin.symbol] = PumpOrDumpEventTracker(
         symbol=coin.symbol,
         tick_count=1,
@@ -64,10 +71,10 @@ def new_pnd(coin, pnd_events):
 # TODO: KS: 2022-04-19: add this as method to Traces
 def existing_pnd(coin, pnd_events, is_pnd):
     s = coin.symbol
-    o = pnd_events[s].open_price
-    c = coin.price
-    l = pnd_events[s].last_price
-    total_price_change_perc = 100 * abs(c - o) / o
+    open_price = pnd_events[s].open_price
+    price = coin.price
+    last_price = pnd_events[s].last_price
+    total_price_change_perc = 100 * abs(price - open_price) / open_price
 
     prev_v = coin.prev_volume
 
@@ -77,14 +84,14 @@ def existing_pnd(coin, pnd_events, is_pnd):
     else:
         pnd_events[s].tick_count += 1
         pnd_events[s].actuality += 0
-    pnd_events[s].total_price_change = abs(c - o)
+    pnd_events[s].total_price_change = abs(price - open_price)
     pnd_events[s].total_price_change_perc = total_price_change_perc
-    pnd_events[s].price_change = c - l
-    pnd_events[s].price_change_perc = 100 * (c - l) / l
+    pnd_events[s].price_change = price - last_price
+    pnd_events[s].price_change_perc = 100 * (price - last_price) / last_price
     pnd_events[s].max_total_price_change_prc = max(
         pnd_events[s].max_total_price_change_prc, total_price_change_perc
     )
-    pnd_events[s].price_history.append(c)
+    pnd_events[s].price_history.append(price)
     pnd_events[s].volume_history.append(coin.volume)
     pnd_events[s].timestamps.append(coin.event_time)
     pnd_events[s].length += 1

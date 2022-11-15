@@ -1,21 +1,27 @@
 #!/usr/bin/env python3
+"""
+Pump & Dump monitor
+- fetching data from Binance websocket (online, real-time) or from a trace file (offline)
+- detecting pump & dump events
+"""
+import argparse
 import json
 from datetime import datetime
-from pathlib import Path
+from typing import NoReturn
 
 import jsonlines
 import rel
 import websocket
-from binance_pump import logger
-from binance_pump.process_message import process_message
 from binance_pump.configuration import conf
-from binance_pump.utlis import clear_console_screen, seconds_to_h_m_s
+from binance_pump.logger import logger
+from binance_pump.process_message import process_message
+from binance_pump.utlis import clear_console_screen
+from binance_pump.utlis import seconds_to_h_m_s
 
-
-
-DISPLAY_FOOTER = False
+# Registered Event Listener.
+# Provides standard (pyevent) interface and functionality without external dependencies
 rel.safe_read()
-endpoint = "wss://stream.binance.com:9443"
+
 
 price_changes = {}
 pnd_events = {}
@@ -30,7 +36,6 @@ active_trace_file_path = conf.TRACES_DIRECTORY / f"{todays_date}_active_trace.js
 retired_trace_file_path = conf.TRACES_DIRECTORY / f"{todays_date}_retired_trace.json"
 config_file_path = conf.TRACES_DIRECTORY / f"{todays_date}_config.yaml"
 messages_file_path = conf.TRACES_DIRECTORY / f"{todays_date}_messages.jsonl"
-
 messages_input_file_path = conf.TRACES_DIRECTORY / "220419_071958_messages.jsonl"
 
 
@@ -40,11 +45,12 @@ def on_message(ws, message):
         message_counter = 0
     else:
         message_counter += 1
+
     # Convert response to JSON
     json_message = json.loads(message)
 
     clear_console_screen()
-    logger.debug("Received message with %d symbols", len(json_message))
+    logger.debug(f"Received message with {len(json_message)} symbols")
 
     process_message(
         tickers=json_message,
@@ -53,25 +59,17 @@ def on_message(ws, message):
         retired_pnd_events=retired_pnd_events,
         message_id=message_counter,
     )
-    #logger.debug("Message processed")
 
-    if DISPLAY_FOOTER:
-        time_now = datetime.now()
-        elapsed_time = time_now - start_time
-        mc_str = "Message counter: %d" % message_counter
-        rr_str = "Rate: %.2f" % (message_counter / elapsed_time.total_seconds())
-        rt_str = "Running time: %s" % seconds_to_h_m_s(elapsed_time.total_seconds())
-        n_events_str = "Number of events: %d" % len(pnd_events)
-        print(", ".join([mc_str, rr_str, rt_str, n_events_str]))
-
+    if conf.DISPLAY_FOOTER:
+        display_status_line(message_counter)
     # save pnd_events (list of non-serializable objects) with pickle
     if conf.SAVE_ACTIVE_EVENT_TRACES:
-        with open(active_trace_file_path, "wt") as f:
+        with open(active_trace_file_path, "w") as f:
             pnd_events_json = {k: event.json() for k, event in pnd_events.items()}
             json.dump(pnd_events_json, f)
 
     if conf.SAVE_RETIRED_EVENT_TRACES:
-        with open(retired_trace_file_path, "wt") as f:
+        with open(retired_trace_file_path, "w") as f:
             retired_pnd_events_json = [event.json() for event in retired_pnd_events]
             json.dump(retired_pnd_events_json, f)
 
@@ -81,7 +79,16 @@ def on_message(ws, message):
 
     if message_counter > 10:
         print("")
-        pass
+
+
+def display_status_line(message_count: int) -> NoReturn:
+    time_now = datetime.now()
+    elapsed_time = time_now - start_time
+    mc_str = f"Message counter: {message_count}"
+    rr_str = "Rate: %.2f" % (message_count / elapsed_time.total_seconds())
+    rt_str = f"Running time: {seconds_to_h_m_s(elapsed_time.total_seconds())}"
+    n_events_str = "Number of events: %d" % len(pnd_events)
+    print(", ".join([mc_str, rr_str, rt_str, n_events_str]))
 
 
 def on_close(ws, close_status_code, close_msg):
@@ -89,13 +96,10 @@ def on_close(ws, close_status_code, close_msg):
 
 
 def run_on_websockets():
-    with open(Path(__file__).parent.parent / "api_config.json") as json_data:
-        api_config = json.load(json_data)
-        json_data.close()
-    stream = "/ws/!miniTicker@arr"
-    socket = endpoint + stream
+    stream = conf.STREAM
+    socket = conf.ENDPOINT + stream
     if conf.SAVE_CONFIG:
-        with open(config_file_path, "wt") as f:
+        with open(config_file_path, "w") as f:
             config_yaml = conf.yaml()
             f.write(config_yaml)
     ws = websocket.WebSocketApp(
@@ -109,11 +113,32 @@ def run_on_websockets():
 
 
 def run_on_traces():
+    """Run pump & dump detection on a messaged saved in a file as a trace."""
     with jsonlines.open(messages_input_file_path, mode="r") as reader:
         for obj in reader:
             on_message(None, json.dumps(obj))
 
 
 if __name__ == "__main__":
-    # run_on_websockets()
-    run_on_traces()
+    parser = argparse.ArgumentParser(description="Pump and dump detection.")
+
+    parser.add_argument(
+        "--websocket",
+        action="store_true",
+        default=False,
+        help="run on traces (offline)",
+    )
+    parser.add_argument(
+        "--trace",
+        action="store_true",
+        default=False,
+        help="run on real-time websocket data",
+    )
+    args = parser.parse_args()
+
+    if args.websocket:
+        run_on_websockets()
+    elif args.trace:
+        run_on_traces()
+    else:
+        parser.print_help()

@@ -1,14 +1,28 @@
 import datetime
 from dataclasses import dataclass
-from typing import Dict
-from binance_pump import logger
+
+from binance_pump.logger import logger
 
 
 @dataclass
-class PriceChange:
-    """Initialize the PriceChange object with current data.
-    If there was previous data, calculate dynamic properties reflecting
-     change in price, volume, etc.
+class PairChange:
+    """Keep data about change in price and volume.
+
+    Initialize if there was no previous data about this pair.
+
+    If there was previous data, calculate change in price, volume, total trades, etc..
+
+    Attributes:
+        symbol: pair name
+        price_change_perc: change in price in percentage
+        volume_change_perc: change in volume in percentage
+        price_change: change in price
+        volume_change: change in volume
+        price: current price
+        volume: current volume
+        total_trades: current total trades
+        is_added: flag if this pair is already in the list of PnD events
+
     """
 
     symbol: str
@@ -50,6 +64,12 @@ class PriceChange:
 
 
 def extract_data_from_ticker(ticker: dict):
+    """Extract data from ticker and return a dict.
+
+    This is a helper function that extracs data from the
+
+
+    """
     # Extract data from dict for the ticker
     symbol = ticker["s"]
     price = float(ticker["c"])
@@ -68,7 +88,7 @@ def extract_data_from_ticker(ticker: dict):
     return ticker_dict
 
 
-def existing_price_change(price_changes: Dict[str, PriceChange], ticker: dict):
+def existing_price_change(price_changes: dict[str, PairChange], ticker: dict):
     ticker_dict = extract_data_from_ticker(ticker)
     s = ticker_dict["symbol"]
     prev_price = price_changes[s].price
@@ -81,13 +101,13 @@ def existing_price_change(price_changes: Dict[str, PriceChange], ticker: dict):
     price_changes[s].open_price = ticker_dict["open_price"]
     price_changes[s].volume = ticker_dict["volume"]
     price_changes[s].is_added = False
-    logger.debug("    Updated existing entry for symbol: %s", s)
+    logger.debug(f"    Updated PairChange entry for symbol: {s}")
 
 
-def new_price_change(price_changes: Dict[str, PriceChange], ticker: dict):
+def new_price_change(price_changes: dict[str, PairChange], ticker: dict):
     ticker_dict = extract_data_from_ticker(ticker)
 
-    new_price_change_item = PriceChange(
+    new_price_change_item = PairChange(
         symbol=ticker_dict["symbol"],
         prev_price=ticker_dict["price"],
         price=ticker_dict["price"],
@@ -99,3 +119,4 @@ def new_price_change(price_changes: Dict[str, PriceChange], ticker: dict):
         prev_volume=ticker_dict["volume"],
     )
     price_changes[ticker_dict["symbol"]] = new_price_change_item
+    logger.debug(f"    Added new PairChange entry for symbol: {ticker_dict['symbol']}")

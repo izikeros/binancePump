@@ -1,5 +1,5 @@
 def clear_console_screen():
-    print("\033c")
+    print("\033")
 
 
 def seconds_to_h_m_s(seconds):

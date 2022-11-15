@@ -1,5 +1,4 @@
 import datetime as dt
-from typing import List
 
 from binance_pump.utlis import color_me
 from pydantic import BaseModel
@@ -37,13 +36,13 @@ class PumpOrDumpEventTracker(BaseModel):
     max_total_price_change_prc: float
 
     # prices observed when pnd event was active
-    price_history: List[float]
+    price_history: list[float]
 
     # prices observed when pnd event was active
-    volume_history: List[float]
+    volume_history: list[float]
 
     # timestamps related to price_history and volume_history
-    timestamps: List[dt.datetime]
+    timestamps: list[dt.datetime]
 
     # trace length
     length: int
@@ -75,7 +74,7 @@ class PumpOrDumpEventTracker(BaseModel):
 
     def to_string(self):
         self.is_printed = True
-        time_fmt = "%H:%M:%S"
+        # time_fmt = "%H:%M:%S"
 
         s = self.symbol.rjust(13)
         # t = self.last_event_time.strftime(time_fmt)
